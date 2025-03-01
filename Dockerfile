@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 
 # Install production dependencies while omitting optional packages
-RUN npm install --omit=optional
+RUN npm install --omit=optional --legacy-peer-deps
 
 # Copy the rest of the application
 COPY . .

@@ -44,7 +44,6 @@
     "express": "^4.21.2",
     "express-fileupload": "^1.5.1",
     "fill-range": "^7.1.1",
-    "fsevents": "^2.3.3",
     "glob-parent": "^5.1.2",
     "has-flag": "^3.0.0",
     "ignore-by-default": "^1.0.1",
