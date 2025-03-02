@@ -3,6 +3,11 @@ import { injectable } from "inversify";
 import logger from "../../../utils/logger";
 import { PostService } from "../services/post.service";
 import { Request, Response, NextFunction } from "express";
+import multer from "multer";
+import fs from "fs";
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
 
 @injectable()
 class PostController {
@@ -21,7 +26,23 @@ class PostController {
   public async createPost(req: Request, res: Response, next: NextFunction) {
     try {
       logger.info("Creating post", { body: req.body });
-      const newPost = await this.postService.createPost(req.body);
+
+      let imageBase64: string | undefined = undefined;
+
+      if (req.file) {
+        const imageBuffer = fs.readFileSync(req.file.path);
+        imageBase64 = imageBuffer.toString("base64");
+
+        fs.unlinkSync(req.file.path);
+      }
+
+      const postData = {
+        ...req.body,
+        image: imageBase64,
+        tags: req.body.tags ? JSON.parse(req.body.tags) : [],
+      };
+
+      const newPost = await this.postService.createPost(postData);
       res.status(201).json(newPost);
     } catch (error) {
       next(error);

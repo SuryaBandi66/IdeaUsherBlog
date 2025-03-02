@@ -9,7 +9,7 @@ const validateTag = (req: Request, res: Response, next: NextFunction): void => {
   const { error } = tagSchema.validate(req.body);
   if (error) {
     res.status(400).json({ error: error.details[0].message });
-    return; // Ensure function execution stops
+    return;
   }
   next();
 };

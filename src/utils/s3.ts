@@ -19,5 +19,5 @@ export const uploadFile = async (file: any): Promise<string> => {
   };
 
   const upload = await s3.upload(params).promise();
-  return upload.Location; // Returns the URL of the uploaded file
+  return upload.Location;
 };
