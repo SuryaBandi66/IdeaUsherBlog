@@ -1,12 +1,5 @@
 import mongoose, { Schema, Document } from "mongoose";
-
-export interface IPost extends Document {
-  title: string;
-  description: string;
-  image?: string;
-  tags: mongoose.Types.ObjectId[];
-  createdAt: Date;
-}
+import { IPost } from "../interfaces/PostInterface";
 
 const PostSchema = new Schema<IPost>(
   {

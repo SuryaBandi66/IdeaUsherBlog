@@ -1,31 +1,35 @@
-import { Request, Response } from "express";
-import Tag from "../models/Tags";
+import { Request, Response, NextFunction } from "express";
+import { injectable } from "inversify";
+import { TagService } from "../services/tags.service";
 
-export const getTags = async (req: Request, res: Response) => {
-  try {
-    const tags = await Tag.find();
-    res.status(200).json(tags);
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+@injectable()
+export class TagController {
+  constructor(private readonly tagService: TagService) {}
 
-export const createTag = async (req: Request, res: Response) => {
-  try {
-    const newTag = new Tag(req.body);
-    await newTag.save();
-    res.status(201).json(newTag);
-  } catch (error) {
-    res.status(400).json({ error: "Bad Request" });
+  public async getAll(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tags = await this.tagService.getAllTags();
+      res.status(200).json(tags);
+    } catch (error) {
+      next(error);
+    }
   }
-};
 
-export const deleteTag = async (req: Request, res: Response) => {
-  try {
-    const deletedTag = await Tag.findByIdAndDelete(req.params.id);
-    if (!deletedTag) return res.status(404).json({ error: "Tag not found" });
-    res.status(200).json({ message: "Tag deleted successfully" });
-  } catch (error) {
-    res.status(500).json({ error: "Internal Server Error" });
+  public async create(req: Request, res: Response, next: NextFunction) {
+    try {
+      const tag = await this.tagService.createTag(req.body.name);
+      res.status(201).json(tag);
+    } catch (error) {
+      next(error);
+    }
   }
-};
+
+  public async delete(req: Request, res: Response, next: NextFunction) {
+    try {
+      await this.tagService.deleteTag(req.params.id);
+      res.status(200).json({ message: "Tag deleted successfully" });
+    } catch (error) {
+      next(error);
+    }
+  }
+}

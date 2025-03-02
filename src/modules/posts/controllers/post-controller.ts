@@ -1,69 +1,42 @@
-import { Request, Response, NextFunction } from "express";
 import Post from "../models/Post";
-import logger from "../../../utils/logger";
 import { injectable } from "inversify";
-import { uploadFile } from "../../../utils/s3";
+import logger from "../../../utils/logger";
+import { PostService } from "../services/post.service";
+import { Request, Response, NextFunction } from "express";
 
 @injectable()
 class PostController {
-  public async getPosts(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  constructor(private readonly postService: PostService) {}
+
+  public async getPosts(req: Request, res: Response, next: NextFunction) {
     try {
-      logger.info("Fetching posts");
-      const posts = await Post.find().populate("tags");
-      res.status(200).json(posts);
+      logger.info("Fetching posts", { query: req.query });
+      const postsData = await this.postService.getAllPosts(req.query);
+      res.status(200).json(postsData);
     } catch (error) {
-      logger.error("Error fetching posts", error);
       next(error);
     }
   }
 
-  public async createPost(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async createPost(req: Request, res: Response, next: NextFunction) {
     try {
-      logger.info("Creating a new post", { body: req.body });
-      let imageUrl = "";
-
-      if (req.files && req.files.image) {
-        imageUrl = await uploadFile(req.files.image);
-        console.log("🚀 ~ PostController ~ imageUrl:", imageUrl);
-      }
-
-      const newPost = new Post({ ...req.body, image: imageUrl });
-      await newPost.save();
+      logger.info("Creating post", { body: req.body });
+      const newPost = await this.postService.createPost(req.body);
       res.status(201).json(newPost);
     } catch (error) {
-      logger.error("Error creating post", error);
       next(error);
     }
   }
 
-  public async updatePost(
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
+  public async updatePost(req: Request, res: Response, next: NextFunction) {
     try {
       logger.info("Updating post", { id: req.params.id, body: req.body });
-      const updatedPost = await Post.findByIdAndUpdate(
+      const updatedPost = await this.postService.updatePost(
         req.params.id,
-        req.body,
-        { new: true }
+        req.body
       );
-      if (!updatedPost) {
-        logger.warn("Post not found", { id: req.params.id });
-        res.status(404).json({ error: "Post not found" });
-        return;
-      }
       res.status(200).json(updatedPost);
     } catch (error) {
-      logger.error("Error updating post", error);
       next(error);
     }
   }
