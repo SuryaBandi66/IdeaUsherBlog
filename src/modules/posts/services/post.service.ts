@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { PostRepository } from "../repositories/PostRepository";
 import { TagRepository } from "../../tags/repositories/tags.repositor";
 import { IPostQueryParamsDTO } from "../dtos/PostQueryParamsDTO";
-import { IPostDTO, IPostUpdateDTO } from "../dtos/PostDto";
+import { IPostDTO } from "../dtos/PostDTO";
 import { IPost } from "../interfaces/PostInterface";
 
 @injectable()
